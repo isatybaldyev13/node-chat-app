@@ -3,16 +3,16 @@ socket.on('connect',()=>{
   console.log('Connected to server ')
 })
 socket.on('newMessage',(message)=>{
-  console.log('New Message ',message)
+  var formattedTime = moment(message.createdAt).format('h:mm a')
   var li = $('<li></li>')
-  li.text(message.from+' : '+message.text)
+  li.text(message.from+' '+formattedTime+' : '+message.text)
   $('#messages').append(li)
 })
 socket.on('newLocationMessage',(message)=>{
-  console.log('New Message ',message)
+  var formattedTime = moment(message.createdAt).format('h:mm a')
   var li = $('<li></li>')
   var a = $('<a>My current location</a>')
-  li.text(message.from+' :')
+  li.text(message.from+' '+formattedTime+' :')
   a.attr('href',message.url)
   li.append(a)
   $('#messages').append(li)
@@ -22,11 +22,12 @@ socket.on('disconnect',()=>{
 })
 $('#message-form').on('submit', function(e){
   e.preventDefault()
+  var messageTextbox = $('[name=message]')
   socket.emit('createMessage',{
     from : 'User',
-    text : $('[name=message]').val()
+    text : messageTextbox.val()
   },function(){
-    console.log('got it')
+    messageTextbox.val('')
   })
 })
 var locationButton = $('#send-location')
