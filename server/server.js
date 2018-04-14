@@ -10,17 +10,30 @@ var io = socketIO(server)
 app.use(express.static(publicPath))
 io.on('connection',(socket)=>{
   console.log('New user connected')
+  socket.emit('newMessage',{
+    from : 'Admin',
+    text : 'Welcome to the chat app',
+    createAt : new Date().getTime()
+  })
+  socket.broadcast.emit('newMessage',{
+    from : 'Admin',
+    text : 'New User Joined',
+    createAt : new Date().getTime()
+  })
 
-  socket.on('createMessage',(newMessage)=>{
-    socket.emit('newMessage',{
-      from : newMessage.to,
-      text : newMessage.text,
-      createAt : newMessage.createAt
+  socket.on('createMessage',(message)=>{
+    io.emit('newMessage',{
+      from : message.from,
+      text : message.text,
+      createAt : new Date().getTime()
     })
   })
   socket.on('disconnect',()=>{
     console.log('Disconnected')
   })
+
+})
+app.post('/image',(req,res)=>{
 
 })
 
