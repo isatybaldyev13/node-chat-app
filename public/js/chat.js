@@ -12,7 +12,26 @@ function scrollToBottom(){
   }
 }
 socket.on('connect',()=>{
+  var params = jQuery.deparam(window.location.search)
+  socket.emit('join',params,function(err){
+    if(err){
+      alert(err)
+      window.location.href = "/"
+    }
+    else{
+      console.log('nice joined ');
+    }
+
+  })
   console.log('Connected to server ')
+})
+socket.on('updateUserList',function(users){
+  console.log(users);
+  var ol = $('<ol></ol>')
+  users.forEach(function(user){
+    ol.append($('<li></li>').text(user))
+  })
+  $('#users').html(ol)
 })
 socket.on('newMessage',(message)=>{
   var formattedTime = moment(message.createdAt).format('h:mm a')
@@ -43,7 +62,6 @@ $('#message-form').on('submit', function(e){
   e.preventDefault()
   var messageTextbox = $('[name=message]')
   socket.emit('createMessage',{
-    from : 'User',
     text : messageTextbox.val()
   },function(){
     messageTextbox.val('')
@@ -60,6 +78,10 @@ locationButton.on('click',function(){
     socket.emit('createLocationMessage',{
       latitude : position.coords.latitude,
       longitude : position.coords.longitude,
+    },function(err){
+      if(err){
+        alert(err)
+      }
     })
   },function(){
     locationButton.removeAttr('disabled').text('Send location')
